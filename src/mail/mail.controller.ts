@@ -7,8 +7,7 @@ export class MailController {
 
   @Post()
   async sendMessage(@Body() body: { name: string; email: string; message: string }) {
-    const { name, email, message } = body;
-    await this.mailService.sendContactMessage(name, email, message);
+    await this.mailService.sendContactMessage(body.name, body.email, body.message);
     return { success: true, message: 'Mensagem enviada com sucesso!' };
   }
 }
