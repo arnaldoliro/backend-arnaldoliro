@@ -1,28 +1,36 @@
 import { Injectable } from '@nestjs/common';
-import { CreateMailDto } from './dto/create-mail.dto';
-import { UpdateMailDto } from './dto/update-mail.dto';
 import * as nodemailer from 'nodemailer';
-
 
 @Injectable()
 export class MailService {
-  create(createMailDto: CreateMailDto) {
-    return 'This action adds a new mail';
+  private transporter;
+
+  constructor() {
+    this.transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: process.env.MAIL_USER,
+        pass: process.env.MAIL_PASS,
+      },
+    });
   }
 
-  findAll() {
-    return `This action returns all mail`;
-  }
+  async sendContactMessage(userName: string, userEmail: string, message: string) {
+    await this.transporter.sendMail({
+      from: `"Formulário Site" <${process.env.MAIL_USER}>`,
+      to: process.env.MAIL_RECEIVER,
+      subject: '📩 Nova mensagem do formulário',
+      text: `De: ${userName} (${userEmail})\n\n${message}`,
+    });
 
-  findOne(id: number) {
-    return `This action returns a #${id} mail`;
-  }
+    await this.transporter.sendMail({
+      from: `"Minha Empresa" <${process.env.MAIL_USER}>`,
+      to: userEmail,
+      subject: 'Recebemos sua mensagem!',
+      text: `Olá ${userName}, recebemos sua mensagem e entraremos em contato em breve.`,
+    });
 
-  update(id: number, updateMailDto: UpdateMailDto) {
-    return `This action updates a #${id} mail`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} mail`;
   }
 }
