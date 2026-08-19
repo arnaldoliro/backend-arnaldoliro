@@ -17,7 +17,11 @@ export class MailService {
     });
   }
 
-  async sendContactMessage(userName: string, userEmail: string, message: string) {
+  async sendContactMessage(
+    userName: string,
+    userEmail: string,
+    message: string,
+  ) {
     await this.transporter.sendMail({
       from: `"Formulário Site" <${process.env.MAIL_USER}>`,
       to: process.env.MAIL_RECEIVER,
@@ -31,6 +35,5 @@ export class MailService {
       subject: 'Recebemos sua mensagem!',
       text: `Olá ${userName}, recebemos sua mensagem e entraremos em contato em breve.`,
     });
-
   }
 }
