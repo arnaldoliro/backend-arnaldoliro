@@ -1,24 +1,25 @@
 # backend-arnaldoliro
 
-API do site pessoal (portfólio). Hoje sua única responsabilidade é receber o formulário de contato do frontend e enviar os e-mails correspondentes via Gmail SMTP (nodemailer): uma notificação para o dono do site e um auto-reply automático para quem enviou a mensagem.
+API do site pessoal (portfólio). Hoje sua única responsabilidade é receber o formulário de contato do frontend e enviar os e-mails correspondentes via [Resend](https://resend.com) (API HTTP de e-mail transacional): uma notificação para o dono do site e um auto-reply automático para quem enviou a mensagem.
 
 ## Stack
 
 - [NestJS](https://nestjs.com/) 11
 - `class-validator` / `class-transformer` — validação de entrada
 - `@nestjs/throttler` — rate limiting
-- `nodemailer` — envio de e-mail via SMTP
+- `resend` — envio de e-mail via API HTTP
 
 ## Configuração
 
 Copie `.env.example` para `.env` e preencha:
 
-| Variável       | Descrição                                                                 |
-| -------------- | -------------------------------------------------------------------------- |
-| `MAIL_USER`    | E-mail Gmail usado para autenticar no SMTP e como remetente                |
-| `MAIL_PASS`    | Senha de app do Gmail (não a senha normal da conta — requer 2FA ativado)   |
-| `MAIL_RECEIVER`| E-mail que recebe a notificação de nova mensagem do formulário             |
-| `PORT`         | Porta em que a API sobe (padrão `3000`)                                    |
+| Variável         | Descrição                                                                 |
+| ---------------- | -------------------------------------------------------------------------- |
+| `RESEND_API_KEY` | API key gerada no painel do Resend (escopo de envio apenas)                |
+| `MAIL_FROM`      | Remetente verificado, ex: `"Nome <contato@seudominio.dev>"`                |
+| `MAIL_RECEIVER`  | E-mail que recebe a notificação de nova mensagem do formulário             |
+| `CORS_ORIGIN`    | URL do frontend liberada pelo CORS                                        |
+| `PORT`           | Porta em que a API sobe (padrão `3000`)                                    |
 
 ## Rodando o projeto
 
