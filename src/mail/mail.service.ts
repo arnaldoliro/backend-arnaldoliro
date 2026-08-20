@@ -1,20 +1,12 @@
-import { Injectable } from '@nestjs/common';
-import * as nodemailer from 'nodemailer';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Resend } from 'resend';
 
 @Injectable()
 export class MailService {
-  private transporter;
+  private resend: Resend;
 
   constructor() {
-    this.transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PASS,
-      },
-    });
+    this.resend = new Resend(process.env.RESEND_API_KEY);
   }
 
   async sendContactMessage(
@@ -22,18 +14,35 @@ export class MailService {
     userEmail: string,
     message: string,
   ) {
-    await this.transporter.sendMail({
-      from: `"Formulário Site" <${process.env.MAIL_USER}>`,
-      to: process.env.MAIL_RECEIVER,
+    const from = process.env.MAIL_FROM as string;
+    const receiver = process.env.MAIL_RECEIVER as string;
+
+    const notification = await this.resend.emails.send({
+      from,
+      to: receiver,
+      replyTo: userEmail,
       subject: '📩 Nova mensagem do formulário',
       text: `De: ${userName} (${userEmail})\n\n${message}`,
     });
 
-    await this.transporter.sendMail({
-      from: `"Minha Empresa" <${process.env.MAIL_USER}>`,
+    if (notification.error) {
+      throw new InternalServerErrorException(
+        'Falha ao enviar notificação de contato',
+      );
+    }
+
+    const autoReply = await this.resend.emails.send({
+      from,
       to: userEmail,
+      replyTo: receiver,
       subject: 'Recebemos sua mensagem!',
       text: `Olá ${userName}, recebemos sua mensagem e entraremos em contato em breve.`,
     });
+
+    if (autoReply.error) {
+      throw new InternalServerErrorException(
+        'Falha ao enviar confirmação de recebimento',
+      );
+    }
   }
 }
